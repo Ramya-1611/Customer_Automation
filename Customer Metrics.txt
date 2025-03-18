@@ -1,0 +1,91 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+import java.util.List;
+
+public class DashboardDataVerification {
+
+    WebDriver driver;
+
+     // Login Method
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.get("https://test.morphs.in/");
+
+        WebElement usernameField = driver.findElement(By.id("username"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.id("loginButton"));
+
+        usernameField.sendKeys(test@gmail.com);
+        passwordField.sendKeys(test);
+        loginButton.click();
+    }
+
+    // Select Time Period
+    public void selectTimePeriod(String period) {
+        Select timePeriodDropdown = new Select(driver.findElement(By.id("timePeriod")));
+        timePeriodDropdown.selectByVisibleText(period);
+    }
+
+    // Verify Stats Calculation
+    public void verifyStats() {
+        String activeCustomers = driver.findElement(By.id("activeCustomerCount")).getText();
+        String newCustomers = driver.findElement(By.id("newCustomerCount")).getText();
+        String inactiveCustomers = driver.findElement(By.id("inactiveCustomerCount")).getText();
+
+        double activeCustomerCount = Double.parseDouble(activeCustomers);
+        double newCustomerCount = Double.parseDouble(newCustomers);
+        double inactiveCustomerCount = Double.parseDouble(inactiveCustomers);
+
+        double upwardTrend = (newCustomerCount / activeCustomerCount) * 100;
+        double downwardTrend = (inactiveCustomerCount / activeCustomerCount) * 100;
+
+        System.out.println("Upward Trend: " + upwardTrend + "%");
+        System.out.println("Downward Trend: " + downwardTrend + "%");
+    }
+
+    // Verify Receivables Calculation
+    public void verifyReceivables() {
+        String receivables = driver.findElement(By.id("receivablesAmount")).getText();
+        System.out.println("Receivables: " + receivables);
+    }
+
+    // Verify Revenue Calculation
+    public void verifyRevenue() {
+        String revenue = driver.findElement(By.id("revenueAmount")).getText();
+        System.out.println("Total Revenue: " + revenue);
+    }
+
+    // Verify Top Customers Carousel
+    public void verifyTopCustomers() {
+        List<WebElement> topCustomers = driver.findElements(By.className("topCustomerItem"));
+        System.out.println("Top Customers:");
+        for (WebElement customer : topCustomers) {
+            System.out.println(customer.getText());
+        }
+    }
+
+    // Test Execution
+    public void executeTest() {
+        setUp();
+        login("test@gmail.com", "test");
+
+        String[] timePeriods = {"Past week", "Last month", "6 months", "Past year", "Date Range"};
+        for (String period : timePeriods) {
+            System.out.println("--- Checking Data for: " + period + " ---");
+            selectTimePeriod(period);
+            verifyStats();
+            verifyReceivables();
+            verifyRevenue();
+            verifyTopCustomers();
+        }
+
+        driver.quit();
+    }
+
+    public static void main(String[] args) {
+        DashboardDataVerification test = new DashboardDataVerification();
+        test.executeTest();
+    }
+}

@@ -1,0 +1,81 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import java.time.Duration;
+
+public class CustomerManagement {
+
+    WebDriver driver;
+    WebDriverWait wait;
+
+    public void setup() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        driver.manage().window().maximize();
+        driver.get("https://test.morphs.in/");
+    }
+
+    public void login() {
+        driver.findElement(By.id("email")).sendKeys("test@gmail.com");
+        driver.findElement(By.id("password")).sendKeys("test");
+        driver.findElement(By.id("loginBtn")).click();
+    }
+
+    public void editCustomerDetails(String customerName, String newDetails) {
+        WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("searchBox")));
+        searchBox.sendKeys(customerName);
+        driver.findElement(By.id("editBtn")).click();
+        driver.findElement(By.id("detailsField")).clear();
+        driver.findElement(By.id("detailsField")).sendKeys(newDetails);
+        driver.findElement(By.id("saveBtn")).click();
+    }
+
+    public void archiveCustomer(String customerName) {
+        WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("searchBox")));
+        searchBox.sendKeys(customerName);
+        driver.findElement(By.id("archiveBtn")).click();
+        driver.findElement(By.id("confirmArchive")).click();
+    }
+
+    public void changeStatusWithRemarks(String customerName, String status, String remarks) {
+        WebElement searchBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("searchBox")));
+        searchBox.sendKeys(customerName);
+        driver.findElement(By.id("statusBtn")).click();
+        Select statusDropdown = new Select(driver.findElement(By.id("statusDropdown")));
+        statusDropdown.selectByVisibleText(status);
+        driver.findElement(By.id("remarksField")).sendKeys(remarks);
+        driver.findElement(By.id("confirmStatus")).click();
+    }
+
+    public void exportCustomerData(String format, String section, String dateRange) {
+        driver.findElement(By.id("exportBtn")).click();
+        Select formatDropdown = new Select(driver.findElement(By.id("exportFormat")));
+        formatDropdown.selectByVisibleText(format);
+        Select sectionDropdown = new Select(driver.findElement(By.id("exportSections")));
+        sectionDropdown.selectByVisibleText(section);
+        Select dateDropdown = new Select(driver.findElement(By.id("dateRange")));
+        dateDropdown.selectByVisibleText(dateRange);
+        driver.findElement(By.id("exportConfirmBtn")).click();
+    }
+
+    public void tearDown() {
+        driver.quit();
+    }
+
+    public static void main(String[] args) {
+        CustomerManagement cm = new CustomerManagement();
+        cm.setup();
+        cm.login();
+
+        // Perform each functionality
+        cm.editCustomerDetails("ABC Corp", "Updated contact details");
+        cm.archiveCustomer("XYZ Corp");
+        cm.changeStatusWithRemarks("123 Corp", "Inactive", "No response from client");
+        cm.exportCustomerData("xlsx", "Customers + Orders", "Past Year");
+
+        cm.tearDown();
+    }
+}

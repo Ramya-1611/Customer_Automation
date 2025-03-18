@@ -1,0 +1,66 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.Select;
+
+public class CustomerFormAutomation {
+
+    public static void main(String[] args) throws InterruptedException {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            driver.get("https://test.morphs.in/");
+            driver.manage().window().maximize();
+
+            // Login
+            driver.findElement(By.id("emailField")).sendKeys("test@gmail.com");
+            driver.findElement(By.id("passwordField")).sendKeys("test");
+            driver.findElement(By.id("loginButton")).click();
+            Thread.sleep(3000); // Wait for navigation
+
+            // Salutation Dropdown
+            WebElement salutationDropdown = driver.findElement(By.id("salutationDropdown"));
+            Select salutation = new Select(salutationDropdown);
+            salutation.selectByVisibleText("Dr.");
+
+            // GST Treatment Dropdown
+            WebElement gstDropdown = driver.findElement(By.id("gstTreatmentDropdown"));
+            Select gstTreatment = new Select(gstDropdown);
+            gstTreatment.selectByVisibleText("Registered Business - Regular");
+
+            // Tax Exemption Reason Dropdown
+            WebElement taxExemptionDropdown = driver.findElement(By.id("taxExemptionDropdown"));
+            Select taxExemption = new Select(taxExemptionDropdown);
+            taxExemption.selectByVisibleText("Government Agency");
+
+            // Payment Term Dropdown
+            WebElement paymentTermDropdown = driver.findElement(By.id("paymentTermDropdown"));
+            Select paymentTerm = new Select(paymentTermDropdown);
+            paymentTerm.selectByVisibleText("NET 30");
+
+            // Currency Dropdown
+            WebElement currencyDropdown = driver.findElement(By.id("currencyDropdown"));
+            Select currency = new Select(currencyDropdown);
+            currency.selectByVisibleText("USD - US Dollar");
+
+            // Adding Custom Options ("Add New")
+            driver.findElement(By.id("addNewSalutation")).click();
+            driver.findElement(By.id("newSalutationField")).sendKeys("Mx.");
+            driver.findElement(By.id("saveNewSalutation")).click();
+            Thread.sleep(2000);
+
+            driver.findElement(By.id("addNewGSTTreatment")).click();
+            driver.findElement(By.id("newGSTTreatmentField")).sendKeys("New GST Category");
+            driver.findElement(By.id("saveNewGSTTreatment")).click();
+            Thread.sleep(2000);
+
+            System.out.println("Form completed successfully!");
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        } finally {
+            driver.quit();
+        }
+    }
+}

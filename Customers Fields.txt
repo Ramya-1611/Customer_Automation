@@ -1,0 +1,52 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import java.util.concurrent.TimeUnit;
+
+public class CustomerCreationTest {
+
+    WebDriver driver;
+
+    // Login Method
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.get("https://test.morphs.in/");
+
+        WebElement usernameField = driver.findElement(By.id("username"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.id("loginButton"));
+
+        usernameField.sendKeys(test@gmail.com);
+        passwordField.sendKeys(test);
+        loginButton.click();
+    }
+
+    public void createCustomer() {
+        driver.get("https://example.com/customer-creation");
+
+        driver.findElement(By.id("companyName")).sendKeys("Test Company");
+        driver.findElement(By.id("type")).sendKeys("Business");
+        driver.findElement(By.id("drugLicenseNumber")).sendKeys("DL1234567");
+        driver.findElement(By.id("drugLicenseExpiryDate")).sendKeys("01/01/2027");
+        driver.findElement(By.id("foodLicenseNumber")).sendKeys("FL123456");
+        driver.findElement(By.id("foodLicenseExpiryDate")).sendKeys("01/01/2027");
+
+        driver.findElement(By.id("gstTreatment")).sendKeys("Registered");
+        driver.findElement(By.id("gstNumber")).sendKeys("27ABCDE1234F1Z5");
+        driver.findElement(By.id("panNumber")).sendKeys("ABCDE1234F");
+
+        driver.findElement(By.id("currency")).sendKeys("INR");
+        driver.findElement(By.id("paymentTerms")).sendKeys("Net 30");
+        driver.findElement(By.id("status")).sendKeys("Active");
+
+        driver.findElement(By.id("submitButton")).click();
+    }
+
+    public static void main(String[] args) {
+        CustomerCreationTest test = new CustomerCreationTest();
+        test.login("testuser", "password123");
+        test.createCustomer();
+    }
+} 

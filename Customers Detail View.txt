@@ -1,0 +1,80 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+
+public class DetailViewTest {
+    WebDriver driver;
+
+    // Login Method
+    public void login() {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://test.morphs.in/");
+
+        driver.findElement(By.id("email")).sendKeys("test@gmail.com");
+        driver.findElement(By.id("password")).sendKeys("test");
+        driver.findElement(By.id("loginButton")).click();
+    }
+
+    // Navigate to Detail View
+    public void navigateToDetailView() {
+        driver.findElement(By.xpath("//a[text()='List View']")).click();
+        driver.findElement(By.xpath("//a[contains(text(),'Customer ID')]")).click();
+    }
+
+    // Switch Between Tabs
+    public void switchTab(String tabName) {
+        driver.findElement(By.xpath("//a[text()='" + tabName + "']")).click();
+    }
+
+    // Edit Feature with Pending Approval Handling
+    public void editRecord() {
+        driver.findElement(By.id("editButton")).click();
+        WebElement fieldToEdit = driver.findElement(By.id("companyName"));
+        fieldToEdit.clear();
+        fieldToEdit.sendKeys("Updated Company Name");
+
+        driver.findElement(By.id("saveButton")).click();
+
+        // Verify 'Pending Approval' Status
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement statusElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[text()='Pending Approval']")));
+        System.out.println("Record successfully marked as 'Pending Approval'.");
+    }
+
+    // Export Feature
+    public void exportRecord(String format) {
+        driver.findElement(By.id("exportButton")).click();
+        WebElement formatDropdown = driver.findElement(By.id("exportFormat"));
+        Select select = new Select(formatDropdown);
+        select.selectByVisibleText(format);
+
+        driver.findElement(By.id("confirmExportButton")).click();
+        System.out.println("Data exported successfully in " + format + " format.");
+    }
+
+    // Change Status
+    public void changeStatus(String newStatus, String remarks) {
+        driver.findElement(By.id("statusButton")).click();
+        WebElement statusDropdown = driver.findElement(By.id("statusDropdown"));
+        Select select = new Select(statusDropdown);
+        select.selectByVisibleText(newStatus);
+
+        driver.findElement(By.id("remarksField")).sendKeys(remarks);
+        driver.findElement(By.id("confirmStatusChangeButton")).click();
+        System.out.println("Status changed to: " + newStatus);
+    }
+
+    // Main Execution
+    public static void main(String[] args) {
+        DetailViewTest test = new DetailViewTest();
+        test.login();
+        test.navigateToDetailView();
+        test.switchTab("Overview");
+        test.editRecord();
+        test.exportRecord("CSV");
+        test.changeStatus("Active", "Reactivated with updated license");
+        test.driver.quit();
+    }
+}

@@ -1,0 +1,97 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+public class FormViewAutomation {
+    WebDriver driver;
+
+    // Locator definitions
+    By draftField = By.id("draftField");
+    By fileUpload = By.id("fileUpload");
+    By pointOfContactField = By.id("pointOfContactField");
+    By primaryIndicator = By.id("primaryIndicator");
+    By pincodeField = By.id("pincodeField");
+    By cityField = By.id("cityField");
+    By stateField = By.id("stateField");
+    By countryField = By.id("countryField");
+
+    public FormViewAutomation(WebDriver driver) {
+        this.driver = driver;
+    }
+
+    // Draft Caching Logic
+    public void autoSaveDraft() {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        Map<String, String> cachedData = new HashMap<>();
+
+        Runnable autoSave = () -> {
+            try {
+                while (true) {
+                    String draftValue = driver.findElement(draftField).getAttribute("value");
+                    cachedData.put("draftField", draftValue);
+                    js.executeScript("localStorage.setItem('draftCache', arguments[0])", cachedData.toString());
+                    Thread.sleep(60000);  // Auto-save every 1 minute
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+
+        Thread autoSaveThread = new Thread(autoSave);
+        autoSaveThread.start();
+    }
+
+    // Point of Contact - Dynamic Field Handling
+    public void handlePointOfContact(String name, String status) {
+        WebElement contactField = driver.findElement(pointOfContactField);
+        contactField.sendKeys(name);
+
+        WebElement statusIndicator = driver.findElement(By.id("statusIndicator"));
+        switch (status) {
+            case "Validation Passed":
+                statusIndicator.sendKeys("✔️ Passed");
+                break;
+            case "Validation Failed":
+                statusIndicator.sendKeys("❌ Failed");
+                break;
+            default:
+                statusIndicator.sendKeys("⏳ In Progress");
+                break;
+        }
+
+        if (driver.findElements(primaryIndicator).size() == 1) {
+            driver.findElement(primaryIndicator).click(); // Mark as primary
+        }
+    }
+
+    // Pincode Auto-population Logic
+    public void autoFillPincodeDetails(String pincode) {
+        WebElement pincodeInput = driver.findElement(pincodeField);
+        pincodeInput.sendKeys(pincode);
+
+        if (pincode.length() >= 4) {
+            // Wait for autocomplete API response
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.attributeToBeNotEmpty(driver.findElement(cityField), "value"));
+
+            System.out.println("City: " + driver.findElement(cityField).getAttribute("value"));
+            System.out.println("State: " + driver.findElement(stateField).getAttribute("value"));
+            System.out.println("Country: " + driver.findElement(countryField).getAttribute("value"));
+        }
+    }
+
+    // Sample test execution
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://test.morphs.in");
+
+        FormViewAutomation formAutomation = new FormViewAutomation(driver);
+        formAutomation.autoSaveDraft();
+        formAutomation.handlePointOfContact("John Doe", "Validation Passed");
+        formAutomation.autoFillPincodeDetails("56001");
+
+        driver.quit();
+    }
+}

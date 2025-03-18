@@ -1,0 +1,64 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
+import java.time.Duration;
+
+public class CustomerListView {
+    WebDriver driver;
+    WebDriverWait wait;
+
+   // Login Method
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.get("https://test.morphs.in/");
+
+        WebElement usernameField = driver.findElement(By.id("username"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.id("loginButton"));
+
+        usernameField.sendKeys(test@gmail.com);
+        passwordField.sendKeys(test);
+        loginButton.click();
+    }
+
+    public void navigateToCustomerListView() {
+        driver.findElement(By.linkText("Customers"));
+    }
+
+    public void applyFilters(String dateRange, String status, String receivables, String city) {
+        driver.findElement(By.id("date-onboarding")).sendKeys(dateRange);
+        new Select(driver.findElement(By.id("status-dropdown"))).selectByVisibleText(status);
+        driver.findElement(By.id("receivables-input")).sendKeys(receivables);
+        driver.findElement(By.id("billing-city")).sendKeys(city);
+        driver.findElement(By.id("apply-filters")).click();
+    }
+
+    public void sortCustomers(String columnName) {
+        driver.findElement(By.xpath("//th[contains(text(), '" + columnName + "')]")).click();
+    }
+
+    public void clearAllFilters() {
+        driver.findElement(By.id("clear-all-filters")).click();
+    }
+
+    public void clickCustomerDetails(String customerID) {
+        driver.findElement(By.linkText(customerID)).click();
+    }
+
+    public void teardown() {
+        driver.quit();
+    }
+
+    public static void main(String[] args) {
+        CustomerListView test = new CustomerListView();
+        test.setup();
+        test.login("test@gmail.com", "test");
+        test.navigateToCustomerListView();
+        test.applyFilters("01/01/2024 - 01/03/2024", "Active", ">5000", "Mumbai");
+        test.sortCustomers("Company Name");
+        test.clickCustomerDetails("CUS001");
+        test.clearAllFilters();
+        test.teardown();
+    }
+}

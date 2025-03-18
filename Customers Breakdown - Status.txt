@@ -1,0 +1,68 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.*;
+
+import java.time.Duration;
+
+public class CustomerStatusTest {
+
+    WebDriver driver;
+
+    // Login Method
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.get("https://test.morphs.in/");
+
+        WebElement usernameField = driver.findElement(By.id("username"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.id("loginButton"));
+
+        usernameField.sendKeys(test@gmail.com);
+        passwordField.sendKeys(test);
+        loginButton.click();
+    }
+
+    // Verifies status behavior
+    public void verifyStatusBehavior(String status, boolean isEditable) {
+        selectStatus(status);
+        
+        WebElement editButton = driver.findElement(By.id("editButton"));
+        
+        if (isEditable) {
+            assert editButton.isEnabled() : status + " status should be editable.";
+        } else {
+            assert !editButton.isEnabled() : status + " status should NOT be editable.";
+        }
+    }
+
+    // Main method
+    public void runTest() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+
+        try {
+            login("testuser", "password123");
+            driver.get("https://example.com/customer-creation"); // Update with your URL
+
+            verifyStatusBehavior("Draft", true);
+            verifyStatusBehavior("Pending Approval", true);
+            verifyStatusBehavior("Active", true);
+            verifyStatusBehavior("On Hold", true);
+            verifyStatusBehavior("Inactive", false);
+            verifyStatusBehavior("Archived", false);
+
+            System.out.println("All status verifications passed.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            driver.quit();
+        }
+    }
+
+    public static void main(String[] args) {
+        CustomerStatusTest test = new CustomerStatusTest();
+        test.runTest();
+    }
+}

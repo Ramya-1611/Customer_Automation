@@ -1,0 +1,102 @@
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+public class DynamicFieldsTest {
+    WebDriver driver;
+
+   // Login Method
+    public void login(String username, String password) {
+        driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        driver.get("https://test.morphs.in/");
+
+        WebElement usernameField = driver.findElement(By.id("username"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+        WebElement loginButton = driver.findElement(By.id("loginButton"));
+
+        usernameField.sendKeys(test@gmail.com);
+        passwordField.sendKeys(test);
+        loginButton.click();
+    }
+
+    // Receivables Calculation
+    public double calculateReceivables() {
+        List<WebElement> invoices = driver.findElements(By.className("approved-invoice"));
+        List<WebElement> payments = driver.findElements(By.className("verified-payment"));
+
+        double totalInvoices = invoices.stream().mapToDouble(invoice -> 
+            Double.parseDouble(invoice.getText())).sum();
+        double totalPayments = payments.stream().mapToDouble(payment -> 
+            Double.parseDouble(payment.getText())).sum();
+
+        return totalInvoices - totalPayments;
+    }
+
+    // Credits Calculation
+    public double calculateCredits() {
+        List<WebElement> inboundCredits = driver.findElements(By.className("inbound-credit"));
+        List<WebElement> outboundCredits = driver.findElements(By.className("outbound-credit"));
+
+        double totalInbound = inboundCredits.stream().mapToDouble(credit -> 
+            Double.parseDouble(credit.getText())).sum();
+        double totalOutbound = outboundCredits.stream().mapToDouble(credit -> 
+            Double.parseDouble(credit.getText())).sum();
+
+        return totalInbound - totalOutbound;
+    }
+
+    // Status: License Expired Check
+    public String checkLicenseExpiry() {
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        LocalDate drugLicenseExpiry = LocalDate.parse(
+            driver.findElement(By.id("drugLicenseExpiry")).getText(), formatter);
+        LocalDate foodLicenseExpiry = LocalDate.parse(
+            driver.findElement(By.id("foodLicenseExpiry")).getText(), formatter);
+
+        if (drugLicenseExpiry.isBefore(currentDate) || foodLicenseExpiry.isBefore(currentDate)) {
+            return "License Expired";
+        } else {
+            return "Active";
+        }
+    }
+
+    // Update Last Activity
+    public void updateLastActivity() {
+        String todayDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        WebElement lastActivityField = driver.findElement(By.id("lastActivity"));
+        lastActivityField.clear();
+        lastActivityField.sendKeys(todayDate);
+    }
+
+    public void runTest() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.get("https://test.morphs.in/");
+
+        // Perform Login
+        login("test@gmail.com", "test");
+
+        // Perform Dynamic Field Calculations
+        double receivables = calculateReceivables();
+        double credits = calculateCredits();
+        String licenseStatus = checkLicenseExpiry();
+        updateLastActivity();
+
+        // Display Results
+        System.out.println("Receivables: " + receivables);
+        System.out.println("Credits: " + credits);
+        System.out.println("License Status: " + licenseStatus);
+
+        driver.quit();
+    }
+
+    public static void main(String[] args) {
+        DynamicFieldsTest test = new DynamicFieldsTest();
+        test.runTest();
+    }
+}
